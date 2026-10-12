@@ -4,38 +4,47 @@ A Filament (v4/v5) page builder that stores an editable **design** JSON tree and
 
 **Repository:** https://github.com/rbiscocho/page-builder
 
-> Note: The requested org `hasp` was not accessible with the connected GitHub account (`rbiscocho`). The repo was created under that account as `page-builder`. You can transfer it to `hasp/page-builder` in GitHub settings if you have access to that org.
+## Features
 
-## Requirements
+- Block system + TokenMap → Tailwind HTML exporter
+- Design **canvas** (palette, inspector, preview, save/publish)
+- Public API for React + safelist command
+- Draft vs published HTML
 
-- PHP 8.3+
-- Laravel 11/12
-- Filament 4.12+ or 5.x
-- Tailwind CSS v4
-
-## Install
+## Install (inside your app under packages/)
 
 ```bash
-composer require pagebuilder/filament-page-builder
+mkdir -p packages
+git clone https://github.com/rbiscocho/page-builder.git packages/page-builder
+```
+
+In `composer.json`:
+
+```json
+"repositories": [{ "type": "path", "url": "packages/page-builder", "options": { "symlink": true } }],
+"require": { "pagebuilder/filament-page-builder": "*" }
+```
+
+```bash
+composer update pagebuilder/filament-page-builder
 php artisan vendor:publish --tag="filament-page-builder-migrations"
 php artisan vendor:publish --tag="filament-page-builder-config"
 php artisan migrate
 ```
 
-## Commands
+## Design canvas
 
-```bash
-php artisan page-builder:regenerate --all
-php artisan page-builder:tailwind-safelist
-```
+See **[docs/canvas-setup.md](docs/canvas-setup.md)** — extend `DesignPage`, register route `/admin/pages/{record}/design`.
 
 ## API
 
 - `GET /api/pages`
-- `GET /api/pages/{slug}` (published only)
+- `GET /api/pages/{slug}`
 - `GET /api/page-builder/safelist.css`
 
-See `docs/react-integration.md` for React + DOMPurify setup.
+## React
+
+See [docs/react-integration.md](docs/react-integration.md).
 
 ## License
 
