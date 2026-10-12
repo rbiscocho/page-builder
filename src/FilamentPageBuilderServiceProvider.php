@@ -21,10 +21,12 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class FilamentPageBuilderServiceProvider extends PackageServiceProvider
 {
+    public static string $name = 'filament-page-builder';
+
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('filament-page-builder')
+            ->name(static::$name)
             ->hasConfigFile()
             ->hasViews()
             ->hasMigration('create_pages_table')
