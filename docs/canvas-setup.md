@@ -1,5 +1,18 @@
 # Design canvas setup
 
+## 0. Register the panel plugin
+
+In your Filament panel provider:
+
+```php
+use PageBuilder\FilamentPageBuilder\FilamentPageBuilderPlugin;
+
+->plugin(
+    FilamentPageBuilderPlugin::make()
+        ->pageResource(\App\Filament\Resources\PageResource::class) // optional
+)
+```
+
 The package ships a full-screen **Design** page (palette + canvas + token inspector).
 
 Wire it to **your** Filament `PageResource`.
