@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace PageBuilder\FilamentPageBuilder\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Forms\Form;
+use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use PageBuilder\FilamentPageBuilder\Filament\Resources\Pages\CreatePage;
 use PageBuilder\FilamentPageBuilder\Filament\Resources\Pages\DesignPage as ResourceDesignPage;
@@ -15,12 +20,13 @@ use PageBuilder\FilamentPageBuilder\Filament\Resources\Pages\EditPage;
 use PageBuilder\FilamentPageBuilder\Filament\Resources\Pages\ListPages;
 use PageBuilder\FilamentPageBuilder\Models\Page;
 use PageBuilder\FilamentPageBuilder\Support\HtmlExporter;
+use UnitEnum;
 
 class PageResource extends Resource
 {
     protected static ?string $model = Page::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $navigationLabel = 'Pages';
 
@@ -28,26 +34,26 @@ class PageResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Pages';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static string|UnitEnum|null $navigationGroup = 'Content';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('title')
+        return $schema
+            ->components([
+                TextInput::make('title')
                     ->required()
                     ->maxLength(255)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(function (Forms\Set $set, ?string $state): void {
+                    ->afterStateUpdated(function ($set, ?string $state): void {
                         if (filled($state)) {
                             $set('slug', str($state)->slug()->toString());
                         }
                     }),
-                Forms\Components\TextInput::make('slug')
+                TextInput::make('slug')
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
-                Forms\Components\Select::make('status')
+                Select::make('status')
                     ->options([
                         'draft' => 'Draft',
                         'published' => 'Published',
@@ -61,26 +67,26 @@ class PageResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('slug')->searchable()->copyable(),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('title')->searchable()->sortable(),
+                TextColumn::make('slug')->searchable()->copyable(),
+                TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'published' => 'success',
                         default => 'warning',
                     }),
-                Tables\Columns\TextColumn::make('updated_at')->dateTime()->sortable(),
+                TextColumn::make('updated_at')->dateTime()->sortable(),
             ])
-            ->actions([
-                Tables\Actions\Action::make('design')
+            ->recordActions([
+                \Filament\Actions\Action::make('design')
                     ->label('Design')
                     ->icon('heroicon-o-paint-brush')
                     ->url(fn (Page $record): string => static::getUrl('design', ['record' => $record])),
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
