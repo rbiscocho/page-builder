@@ -20,7 +20,7 @@ class PageResource extends Resource
 {
     protected static ?string $model = Page::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $navigationLabel = 'Pages';
 
@@ -28,7 +28,7 @@ class PageResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Pages';
 
-    protected static ?string $navigationGroup = 'Content';
+    protected static string|\UnitEnum|null $navigationGroup = 'Content';
 
     public static function form(Form $form): Form
     {
