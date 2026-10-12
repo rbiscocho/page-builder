@@ -4,27 +4,18 @@ declare(strict_types=1);
 
 namespace PageBuilder\FilamentPageBuilder\Filament\Pages;
 
+use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Contracts\Support\Htmlable;
 use PageBuilder\FilamentPageBuilder\Models\Page as PageModel;
 use PageBuilder\FilamentPageBuilder\Support\BlockRegistry;
 use PageBuilder\FilamentPageBuilder\Support\HtmlExporter;
 use PageBuilder\FilamentPageBuilder\Support\TokenMap;
 
-/**
- * Full-screen design canvas. Bind to your resource in the app:
- *
- *   class DesignPage extends \PageBuilder\FilamentPageBuilder\Filament\Pages\DesignPage
- *   {
- *       protected static string $resource = PageResource::class;
- *   }
- *
- *   // PageResource::getPages()
- *   'design' => DesignPage::route('/{record}/design'),
- */
 class DesignPage extends Page
 {
     use InteractsWithRecord;
@@ -32,7 +23,7 @@ class DesignPage extends Page
     /** @var view-string */
     protected static string $view = 'filament-page-builder::filament.pages.design-page';
 
-    protected static ?string $navigationIcon = 'heroicon-o-paint-brush';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-paint-brush';
 
     protected static ?string $title = 'Design';
 
@@ -72,6 +63,11 @@ class DesignPage extends Page
     public function getHeading(): string|Htmlable
     {
         return $this->record->title ?? 'Design';
+    }
+
+    public function getMaxContentWidth(): string|MaxWidth|null
+    {
+        return MaxWidth::Full;
     }
 
     /**
@@ -317,6 +313,14 @@ class DesignPage extends Page
     protected function refreshHtml(): void
     {
         $this->liveHtml = app(HtmlExporter::class)->export($this->design);
+    }
+
+    /**
+     * @param  array<string, mixed>  $block
+     */
+    public function blockHtml(array $block): string
+    {
+        return app(HtmlExporter::class)->export([$block]);
     }
 
     protected function snapshotBeforeChange(): void
