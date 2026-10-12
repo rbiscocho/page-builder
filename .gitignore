@@ -1,0 +1,14 @@
+/vendor
+/node_modules
+composer.lock
+.phpunit.cache
+.phpunit.result.cache
+/build
+/coverage
+.php-cs-fixer.cache
+.idea
+.vscode
+.fleet
+testbench.yaml
+phpstan.neon
+phpunit.xml
