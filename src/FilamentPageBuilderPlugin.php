@@ -6,27 +6,30 @@ namespace PageBuilder\FilamentPageBuilder;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use PageBuilder\FilamentPageBuilder\Filament\Resources\PageResource;
 
 /**
- * Register on your Filament panel:
+ * Filament panel plugin (Filament 5.x Plugin contract).
  *
- *   $panel->plugin(FilamentPageBuilderPlugin::make());
+ *   $panel->plugin(
+ *       FilamentPageBuilderPlugin::make()
+ *           ->resource(true) // register package PageResource (default)
+ *   );
  *
- * The design canvas is a resource page — bind it in your app's PageResource
- * (see docs/canvas-setup.md). This plugin wires panel-level assets and
- * optional discovery hooks.
+ * Design canvas is a resource page on PageResource — see docs/canvas-setup.md.
+ *
+ * @see https://filamentphp.com/docs/5.x/plugins/panel-plugins
  */
 class FilamentPageBuilderPlugin implements Plugin
 {
-    protected bool $registerAssets = true;
+    protected bool $hasResource = true;
 
     /**
-     * Optional FQCN of the app PageResource. When set, the panel can deep-link
-     * to design routes from notifications / widgets later.
+     * Override the resource class registered on the panel.
      *
      * @var class-string<\Filament\Resources\Resource>|null
      */
-    protected ?string $pageResource = null;
+    protected ?string $resourceClass = null;
 
     public static function make(): static
     {
@@ -47,39 +50,62 @@ class FilamentPageBuilderPlugin implements Plugin
     }
 
     /**
+     * Register the package (or custom) PageResource on the panel.
+     */
+    public function resource(bool $condition = true): static
+    {
+        $this->hasResource = $condition;
+
+        return $this;
+    }
+
+    public function hasResource(): bool
+    {
+        return $this->hasResource;
+    }
+
+    /**
      * @param  class-string<\Filament\Resources\Resource>  $resource
      */
+    public function usingResource(string $resource): static
+    {
+        $this->resourceClass = $resource;
+        $this->hasResource = true;
+
+        return $this;
+    }
+
+    /**
+     * @return class-string<\Filament\Resources\Resource>
+     */
+    public function getResourceClass(): string
+    {
+        return $this->resourceClass ?? PageResource::class;
+    }
+
+    /** @deprecated Use usingResource() */
     public function pageResource(string $resource): static
     {
-        $this->pageResource = $resource;
-
-        return $this;
+        return $this->usingResource($resource);
     }
 
+    /** @deprecated Use getResourceClass() */
     public function getPageResource(): ?string
     {
-        return $this->pageResource;
-    }
-
-    public function registerAssets(bool $condition = true): static
-    {
-        $this->registerAssets = $condition;
-
-        return $this;
+        return $this->hasResource ? $this->getResourceClass() : null;
     }
 
     public function register(Panel $panel): void
     {
-        // DesignPage is a Filament\Resources\Pages\Page and must be registered
-        // on the app's PageResource via getPages(). No panel pages are added
-        // here so the package stays resource-agnostic.
+        if ($this->hasResource()) {
+            $panel->resources([
+                $this->getResourceClass(),
+            ]);
+        }
     }
 
     public function boot(Panel $panel): void
     {
-        if ($this->registerAssets) {
-            // Reserved for future canvas CSS/JS published via FilamentAsset.
-            // Views currently use Tailwind utility classes from the host app.
-        }
+        // Panel-scoped runtime hooks go here (runs only when this panel is active).
     }
 }
